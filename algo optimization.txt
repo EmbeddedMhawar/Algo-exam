@@ -1,0 +1,428 @@
+Algorithme Optimization
+
+// Marouane 
+    Procedure libererMatrice(Tableau matrice[] : reel, lignes : entier) 
+        Variable 
+            i : entier  
+        Début
+            Pour i ← 0 a (lignes - 1) pas 1 Faire
+                //liberer matrice[i]
+            FinPour
+            //liberer matrice
+        Fin Procedure
+
+    Procedure AfficherMatrice(Tableau matrice[][] : reel, lignes : entier, colonnes : entier)
+        Variables
+            i, j : entier
+        Début
+            Pour i ← 0 à (lignes - 1) pas 1 Faire
+                Pour j ← 0 à (colonnes - 1) pas 1 Faire
+                    Ecrire(matrice[i , j], " ")
+                FinPour
+            FinPour
+        Fin Procedure
+
+    Procedure AfficherVecteur(Tableau vecteur[] : reel, taille : entier)
+        Variables
+            i: entier
+        Début
+            Ecrire("  [ ")
+            Pour i ← 0 à (taille - 1) pas 1 Faire
+                Ecrire(vecteur[i])
+            FinPour
+            Ecrire("]")
+        Fin Procedure
+
+// Saad et Imaddine
+    Fonction CalculerMatriceRendements(Tableau matricePrix[][] : reel, nombrePeriodes : entier, nombreActifs : entier) : Tableau reel
+        Variables        
+            i, j, nombrePeriodesRendement : entier
+            prixCourant, prixPrecedent : reel
+            
+            Tableau matriceRendements[][] : reel
+
+        Début 
+            Redim  matricePrix[nombrePeriodes , nombreActifs]
+
+            nombrePeriodesRendement ← nombrePeriodes - 1
+            Redim matriceRendements[nombrePeriodesRendement , nombreActifs]
+
+            Pour j ← 0 à (nombreActifs - 1) pas 1 Faire
+                Pour i ← 0 à (nombrePeriodesRendement - 1) pas 1 Faire
+                    prixPrecedent ← matricePrix[i, j]
+                    prixCourant ← matricePrix[i+1, j]
+                    Si |prixPrecedent| = 0 alors
+                        matriceRendements[i, j] ← 0.0
+                    Sinon
+                        matriceRendements[i, j] ← (prixCourant - prixPrecedent) / prixPrecedent
+                    FinSi
+                FinPour
+            FinPour
+
+            Retourner matriceRendements
+
+        Fin Fonction
+
+    Fonction CalculerVecteurRendementsMoyens(Tableau matriceRendements[][] : reel, nombrePeriodesRendement : entier, nombreActifs : entier) : Tableau reel
+
+        Variables
+            i, j : entier
+            somme : reel 
+
+            Tableau vecteurRendementsMoyens[] : reel
+        Début
+            Redim matriceRendements[nombrePeriodesRendement , nombreActifs]
+            Redim vecteurRendementsMoyens[nombreActifs]
+
+            Pour j ← 0 à (nombreActifs - 1) pas 1 Faire
+                somme ← 0
+                Pour i ← 0 à (nombrePeriodesRendement - 1) pas 1 Faire
+                    somme ← somme + MatriceRendements[i , j]
+                FinPour
+                vecteurRendementsMoyens[j] ← somme / nombrePeriodesRendement
+            FinPour
+
+            Retourner vecteurRendementsMoyens
+        Fin Fonction
+
+    Fonction CalculerMatriceCovariance(Tableau matriceRendements[][] : reel, Tableau vecteurRendementsMoyens[] : reel, nombrePeriodesRendement: entier, nombreActifs : entier) : Tableau reel
+        Variables
+            i, j, k : entier
+            denominateur, somme, diff_i, diff_j : reel
+            Tableau MatriceCovariance[nombreActifs, nombreActifs] : reel
+        Début
+
+            Redim matriceRendements[nombrePeriodesRendement, nombreActifs]
+            Redim vecteurRendementsMoyens[nombreActifs]
+
+            denominateur ← nombrePeriodesRendement - 1
+
+            Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                Pour j ← 0 à i pas 1 Faire // Calcule seulement la moitié inférieure (et diagonale)
+                    somme ← 0
+                    Pour k ← 0 à (nombrePeriodesRendement - 1) pas 1 Faire
+                        diff_i ← matriceRendements[k, i] - VecteurRendementsMoyens[i]
+                        diff_j ← matriceRendements[k, j] - VecteurRendementsMoyens[j]
+                        somme ← somme + (diff_i * diff_j)
+                    FinPour
+                    MatriceCovariance[i , j] ← somme / denominateur
+                    Si NON(i = j) alors // Remplir la partie supérieure par symétrie
+                        matriceCovariance[j, i] ← matriceCovariance[i, j]
+                    FinSi
+                FinPour
+            FinPour
+
+            Retourner matriceCovariance
+        Fin Fonction
+
+    Fonction ConstruireMatriceKKT(Tableau matriceCovariance[][]: reel, Tableau vecteurRendementsMoyens[]: reel,  nombreActifs: entier): Tableau reel    
+        
+        Variables
+            i, j, tailleKKT : entier
+            Tableau KKT[][] : reel
+
+        Début
+            Redim KKT[tailleKKT, tailleKKT]
+            Redim matriceCovariance[nombreActifs, nombreActifs]
+            Redim vecteurRendementsMoyens[nombreActifs]
+
+            tailleKKT ← nombreActifs + 2
+    
+            Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                Pour j ← 0 à (nombreActifs - 1) pas 1 Faire
+                    KKT[i, j] ← matriceCovariance[i, j]
+                FinPour
+            FinPour
+    
+            Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                KKT[i, nombreActifs] ← vecteurRendementsMoyens[i]       // Colonne des rendements
+                KKT[i, nombreActifs + 1] ← 1       // Colonne de contrainte budget
+
+                KKT[nombreActifs, i] ← vecteurRendementsMoyens[j]       // Ligne rendement cible
+                KKT[nombreActifs + 1, i] ← 1       // Ligne contrainte budget
+            FinPour
+    
+            Retourner KKT
+        Fin Fonction
+
+// Abderrahmane et Faycal
+
+    Fonction ResoudreSystemeLineaire(Tableau matriceA_orig[][], Tableau Y_orig[] : reel, N_eq : entier): Tableau reel
+        Variables
+            Tableau LU[][] : reel      // Stocke la décomposition LU
+            Tableau P[] : entier        // Vecteur de permutation
+            i, j, k, i_p, tempP: entier
+            maxValAbs, somme : reel
+            Tableau temp_col_ptr[] : reel
+            Tableau X[] : reel
+            Tableau Y_P[] : reel          // Solution finale
+        Début
+
+            Redim LU[N_eq][N_eq]
+            Redim P[N_eq]
+            Redim X[N_eq]
+            Redim Y_P[N_eq]
+
+            // Copie de la matrice A en LU
+            Pour i ← 0 à (N_eq-1) pas 1 Faire
+                Pour j ← 0 à (N_eq-1) pas 1 Faire
+                    LU[i][j] ← matriceA_orig[i][j]
+                FinPour
+            FinPour
+
+            // Initialisation du vecteur de permutation
+            Pour i ← 0 à (N_eq-1) pas 1 Faire
+                P[i] ← i
+            FinPour
+
+            // Décomposition LU avec pivotage partiel
+            Pour k ← 0 à (N_eq-1) pas 1 Faire
+                i_p ← k
+                maxValAbs ← |LU[k][k]|
+                Pour i ← k à (N_eq-1) pas 1 Faire
+                    Si |LU[i][k]| > maxValAbs
+                        maxValAbs ← |LU[i][k]|
+                        i_p ← i
+                    FinSi
+                FinPour
+
+                // Permutation des lignes si nécessaire
+                Si NON (i_p = k) alors
+                    temp_col_ptr ← LU[k]
+                    LU[k] ← LU[i_p]
+                    LU[i_p] ← temp_col_ptr
+
+                    tempP ← P[k]
+                    P[k] ← P[i_p]
+                    P[i_p] ← tempP
+                FinSi
+
+                // Vérification du pivot
+                Si (|LU[k][k]| = 0) alors
+                    Ecrire(" Pivot proche de zéro à LU[", k, "][", k, "]")
+                FinSi
+
+                // Calcul des éléments de L et U
+                Pour i ← k+1 à (N_eq-1) pas 1 Faire
+                    Si (|LU[k][k]| > 0) alors
+                        LU[i][k] ← LU[i][k] / LU[k][k]
+                    Sinon
+                        LU[i][k] ← 0
+                    FinSi
+                    Pour j ← k+1 à (N_eq-1) pas 1 Faire
+                        LU[i][j] ← LU[i][j] - LU[i][k] * LU[k][j]
+                    FinPour
+                FinPour
+            FinPour
+
+            // Résolution de Ly = Pb (Substitution avant)
+            Pour i ← 0 à (N_eq-1) pas 1 Faire
+                Y_P[i] ← Y_orig[P[i]]  // Application de la permutation P à Y
+            FinPour
+
+            Pour i ← 0 à (N_eq-1) pas 1 Faire
+                somme ← Y_P[i]
+                Pour j ← 0 à (i-1) pas 1 Faire
+                    somme ← somme - LU[i][j] * Y_P[j]
+                FinPour
+                Y_P[i] ← somme
+            FinPour
+
+            // Résolution de Ux = y (Substitution arrière)
+            Pour i ← (N_eq - 1) à 0 pas -1 Faire
+                somme ← Y_P[i]
+                Pour j ← (i+1) à (N_eq - 1) pas 1 Faire
+                    somme ← somme - LU[i][j] * X[j]
+                FinPour
+                Si (|LU[i][i]| = 0) alors
+                    X[i] ← 0.0   
+                Sinon
+                    X[i] ← somme / LU[i][i]
+                FinSi
+            FinPour
+
+            Retourner X
+        Fin Fonction
+
+    Fonction ResoudreSystemeOptimisation(Tableau matriceKKT[][] : reel, rendementCible : reel, nombreActifs : entier) : Tableau reel
+        Variables
+            tailleKKT, iteration_optim_count, i : entier
+            Tableau Y[] : reel
+            Tableau X_solution_iteration[] : reel
+            Tableau poids_finaux[] : reel
+            somme_des_poids : reel
+            contrainte_negative_activee : booleen
+        Début
+            tailleKKT ← nombreActifs + 2
+            Redim Y[tailleKKT]
+            Redim poids_finaux[nombreActifs]
+            Redim X_solution_iteration[tailleKKT]
+            Redim poids_finaux[nombreActifs]
+
+            
+            Y[nombreActifs] ← rendementCible
+            Y[nombreActifs + 1] ← 1.0
+
+            iteration_optim_count ← 0
+            Répéter
+                iteration_optim_count ← iteration_optim_count + 1
+
+                // Résolution du système KKT * X = Y
+                X_solution_iteration ← ResoudreSystemeLineaire(matriceKKT, Y, tailleKKT)
+
+                contrainte_negative_activee ← Faux
+
+                // Troncature des poids négatifs
+                Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                    Si X_solution_iteration[i] < 0 alors
+                        X_solution_iteration[i] ← 0.0
+                        contrainte_negative_activee ← Vrai
+                    FinSi
+                FinPour
+            Jusqu'à (contrainte_negative_activee = Faux OU iteration_optim_count ≥ nombreActifs)
+
+            // Normalisation des poids pour qu'ils somment à 1
+            somme_des_poids ← 0.0
+            Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                somme_des_poids ← somme_des_poids + X_solution_iteration[i]
+            FinPour
+
+            Si |somme_des_poids| = 0 alors
+                Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                    poids_finaux[i] ← 1.0 / nombreActifs
+                FinPour
+            Sinon
+                Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+                    poids_finaux[i] ← X_solution_iteration[i] / somme_des_poids
+                FinPour
+            FinSi
+
+            Retourner poids_finaux
+        Fin Fonction
+
+    Fonction CalculerRendementPortefeuille(Tableau poids[] : reel, Tableau rendementsMoyens[] : reel, nombreActifs : entier) : reel
+        Variables
+            rendementPtf : reel
+            i : entier
+        Début
+            Redim rendementsMoyens[N_actifs]
+            Redim poids[N_actifs]
+
+            rendementPtf ← 0.0
+            Pour i de 0 à (nombreActifs - 1) pas 1 Faire
+                rendementPtf ← rendementPtf + poids[i] * rendementsMoyens[i]
+            FinPour
+
+            Retourner rendementPtf
+        Fin Fonction
+
+    Fonction CalculerVolatilitePortefeuille(Tableau poids[] : reel, Tableau matriceCovariance[][] : reel, nombreActifs : entier) : reel
+        Variables
+            variancePortefeuille : reel
+            i, j : entier
+        Début
+            Redim poids[N_actifs]
+            Redim matriceCovariance[N_actifs][N_actifs]
+
+            variancePortefeuille ← 0.0
+            Pour i de 0 à (nombreActifs - 1) pas 1 Faire
+                Pour j de 0 à (nombreActifs - 1) pas 1 Faire
+                    variancePortefeuille ← variancePtf + poids[i] * poids[j] * matriceCovariance[i][j]
+                FinPour
+            FinPour
+
+            Si variancePortefeuille < 0 alors
+                Ecrire("ATTENTION : Variance calculée négative. Mise à zéro.")
+                variancePortefeuille ← 0.0
+            FinSi
+
+            Retourner RacineCarree(variancePortefeuille)
+        Fin Fonction
+
+    Constante nombreJours : entier = 89
+    Constante nombreActifs : entier = 7
+    Constante rendementCible : reel = 0.0005
+    Constante Tableau nomsActifs[nombreActifs] : chaine = {"NVDA", "TSLA", "BA", "AAPL", "BABA", "GOOGL", "AMZN"}
+    
+    Variables
+        Tableau matricePrix[][] : reel
+        Tableau matriceRendements[][] : reel
+        Tableau matriceCovariance[][] : reel
+        Tableau matriceKKT[][] : reel
+        Tableau vecteurRendementsMoyens[] : reel
+        Tableau poidsOptimaux[] : reel
+        Tableau poidsEgaux[] : reel
+        i, j, nombrePeriodesRendement : entier
+        rendementPtfAvant, volatilitePtfAvant : reel
+        rendementPtfOptimise, volatilitePtfOptimise : reel
+        differenceRelativeRendement, differenceRelativeVolatilite : reel
+
+    Début
+        Ecrire("Debut du programme d'optimisation de portefeuille.")
+        Ecrire("Initialisation des donnees: nombreJours=", nombreJours, ", nombreActifs=", nombreActifs)
+
+        // Allocation et Initialisation de matricePrix (remplace malloc et copie)
+        Redim matricePrix[nombreJours][nombreActifs]
+        // --- FIN: Logique de chargement des prix ---
+
+        Ecrire("--- Matrice Rendements ---")
+        matriceRendements ← CalculerMatriceRendements(matricePrix, nombreJours, nombreActifs)
+
+        Ecrire("--- Vecteur Rendements Moyens ---")
+        nombrePeriodesRendement ← nombreJours - 1
+        vecteurRendementsMoyens ← CalculerVecteurRendementsMoyens(matriceRendements, nombrePeriodesRendement, nombreActifs)
+        AfficherVecteur(vecteurRendementsMoyens, nombreActifs) // Appel procédure
+
+        Ecrire("--- Calcul Matrice Covariance ---")
+        matriceCovariance ← CalculerMatriceCovariance(matriceRendements, vecteurRendementsMoyens, nombrePeriodesRendement, nombreActifs)
+        AfficherMatrice(matriceCovariance, nombreActifs, nombreActifs) // Appel procédure
+
+        Ecrire("--- Construction Matrice KKT ---")
+        matriceKKT ← ConstruireMatriceKKT(matriceCovariance, vecteurRendementsMoyens, nombreActifs)
+        AfficherMatrice(matriceKKT, nombreActifs + 2, nombreActifs + 2) // Appel procédure
+
+        Ecrire("--- Resolution Systeme Optimisation ---")
+        Ecrire("main: Rendement cible par periode = ", rendementCible * 100.0, " %")
+        poidsOptimaux ← ResoudreSystemeOptimisation(matriceKKT, rendementCible, nombreActifs)
+
+        Ecrire("--- RESULTATS FINALS ---")
+        Ecrire("Poids optimaux (format liste) :")
+        Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+            Ecrire("  Actif ", nomsActifs[i], " : ", poidsOptimaux[i] * 100.0, " %")
+        FinPour
+
+        // Calculs de comparaison
+        Redim poidsEgaux[nombreActifs]
+        Pour i ← 0 à (nombreActifs - 1) pas 1 Faire
+            poidsEgaux[i] ← 1.0 / nombreActifs
+        FinPour
+
+        // Assumer l'existence de ces fonctions en pseudo-code
+        rendementPtfAvant ← CalculerRendementPortefeuille(poidsEgaux, vecteurRendementsMoyens, nombreActifs)
+        volatilitePtfAvant ← CalculerVolatilitePortefeuille(poidsEgaux, matriceCovariance, nombreActifs)
+
+        Ecrire("Rendement avant optimisation du portefeuille : ", rendementPtfAvant * 100.0, " % par periode")
+        Ecrire("Volatilite avant optimisation du portefeuille: ", volatilitePtfAvant * 100.0, " % par periode")
+
+        rendementPtfOptimise ← CalculerRendementPortefeuille(poidsOptimaux, vecteurRendementsMoyens, nombreActifs)
+        volatilitePtfOptimise ← CalculerVolatilitePortefeuille(poidsOptimaux, matriceCovariance, nombreActifs)
+
+        Ecrire("Rendement apres optimisation du portefeuille : ", rendementPtfOptimise * 100.0, " % par periode")
+        Ecrire("Volatilite apres optimisation du portefeuille: ", volatilitePtfOptimise * 100.0, " % par periode")
+
+        // Calcul des différences relatives
+        differenceRelativeRendement ← (rendementPtfOptimise - rendementPtfAvant) / |rendementPtfAvant| * 100.0
+        differenceRelativeVolatilite ← (volatilitePtfAvant - volatilitePtfOptimise) / |volatilitePtfAvant| * 100.0
+
+        Ecrire("Amelioration relative du rendement apres optimisation : ", differenceRelativeRendement, " %")
+        Ecrire("Amelioration relative de la volatilite apres optimisation : ", differenceRelativeVolatilite, " %")
+
+        Ecrire("Liberation de la memoire...")
+        libererMatrice(matricePrix, nombreJours) // Appel procédure
+        libererMatrice(matriceRendements, nombrePeriodesRendement) // Appel procédure
+        libererMatrice(matriceCovariance, nombreActifs) // Appel procédure
+        libererMatrice(matriceKKT, nombreActifs + 2) // Appel procédure
+
+        Ecrire("Fin du programme.")
+    Fin
+            
